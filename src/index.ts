@@ -6,8 +6,13 @@ dotenv.config();
 
 import app from './app'
 
-//Connects to the Database -> then starts the express
-createConnection()
+createConnection({
+  type: 'mongodb',
+  useNewUrlParser: true,
+  entities: [ 'src/entity/**/*.ts' ],
+  url: process.env.TYPEORM_URL,
+  database: process.env.TYPEORM_DATABASE
+})
   .then(async (connection) => {
       app.listen(process.env.PORT || 3000, () => {
           console.log('Server started on port 3000!');
