@@ -7,7 +7,7 @@ describe('Check JWT middleware', () => {
   let requestMock;
   let responseMock;
   beforeEach(() => {
-    requestMock = { headers: { authorization: 'Bearer' } } as Request;
+    requestMock = { cookies: { access_token: '123' } } as Request;
     responseMock = ({
       status: jest.fn(() => ({ send: jest.fn()})),
       locals: {}

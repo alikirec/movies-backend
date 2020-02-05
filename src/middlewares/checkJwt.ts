@@ -4,9 +4,8 @@ import * as jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
-  //Get the jwt token from the head
-  const authorization = req.headers.authorization;
-  const token = authorization && authorization.replace('Bearer','').trim();
+  //Get the jwt token from the headers
+  const token = req.cookies['access_token'];
   let jwtPayload;
 
   //Try to validate the token and get data

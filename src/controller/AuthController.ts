@@ -22,21 +22,20 @@ class AuthController {
       res.status(401).send();
     }
 
-    //Check if encrypted password match
     if (!user.checkIfUnencryptedPasswordIsValid(password)) {
       res.status(401).send();
       return;
     }
 
-    //Sign JWT, valid for 1 hour
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET
     );
 
+    res.cookie('access_token', token, { httpOnly: true, secure: true, maxAge: 900000 });
+
     //Send the jwt in the response
     res.send({
-      token: `Bearer ${token}`,
       user: {
         id: user.id,
         username: user.username,

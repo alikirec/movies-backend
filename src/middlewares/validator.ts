@@ -11,7 +11,7 @@ const validator = (schema: Joi.Schema) => (req: Request, res: Response, next: Ne
     const { details } = error;
     const message = details.map(i => i.message).join(',');
 
-    console.log("error", message);
+
     res.status(422).json({ error: message })
   }
 };
