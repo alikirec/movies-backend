@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as JWT from 'jsonwebtoken';
 
 import { checkJwt } from '../checkJwt'
@@ -10,8 +10,7 @@ describe('Check JWT middleware', () => {
     requestMock = { headers: { authorization: 'Bearer' } } as Request;
     responseMock = ({
       status: jest.fn(() => ({ send: jest.fn()})),
-      locals: {},
-      setHeader: jest.fn(),
+      locals: {}
     } as unknown) as Response;
   });
 
@@ -24,16 +23,16 @@ describe('Check JWT middleware', () => {
     expect(responseMock.status).toBeCalledWith(401);
   });
 
-  it('should set response header if JWT verification succeeds', () => {
-    const JWT_SECRET = process.env.JWT_SECRET;
+  it('should call next if JWT verification succeeds', () => {
     jest.spyOn(JWT, 'verify').mockImplementationOnce(() => ({
       userId: 123,
       username: 'asd'
     }));
-    const signMock = jest.spyOn(JWT, 'sign').mockImplementationOnce(() => 'token');
 
-    checkJwt(requestMock, responseMock, ():number => 1);
-    expect(responseMock.setHeader).toBeCalledWith('token', 'token');
-    expect(signMock).toBeCalledWith({ userId: 123, username: 'asd' }, JWT_SECRET, { expiresIn: '1h' });
+    const nextMock = jest.fn() as jest.Mock<ReturnType<NextFunction>>;
+
+    checkJwt(requestMock, responseMock, nextMock);
+
+    expect(nextMock).toBeCalled();
   });
 });

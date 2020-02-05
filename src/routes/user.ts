@@ -1,30 +1,33 @@
 import { Router } from 'express';
+import * as Joi from 'joi';
 
 import UserController from '../controller/UserController';
 import { checkJwt } from '../middlewares/checkJwt';
-import checkOwnEntity from '../middlewares/checkOwnEntity';
+import validator from '../middlewares/validator';
 
 const router = Router();
 
+const moviesRequestBody = Joi.object().keys({
+  movies: Joi.array().items(Joi.number()).required()
+});
+
 // Get one user
 router.get(
-  '/:id([0-9]+)',
-  [checkJwt, checkOwnEntity],
-  UserController.getOneById
+  '/me',
+  [checkJwt],
+  UserController.getMe
 );
 
-//Edit one user
-router.patch(
-  '/:id([0-9]+)',
-  [checkJwt, checkOwnEntity],
-  UserController.editUser
+router.post(
+  '/me/watch-list',
+  [checkJwt, validator(moviesRequestBody)],
+  UserController.addMovies
 );
 
-//Delete one user
 router.delete(
-  '/:id([0-9]+)',
-  [checkJwt, checkOwnEntity],
-  UserController.deleteUser
+  '/me/watch-list',
+  [checkJwt, validator(moviesRequestBody)],
+  UserController.deleteMovies
 );
 
 export default router;
