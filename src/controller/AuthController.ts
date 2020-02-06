@@ -6,6 +6,8 @@ import { validate } from 'class-validator';
 import { User } from '../entity/User';
 
 class AuthController {
+  static readonly TOKEN_COOKIE_NAME = 'access_token';
+
   static login = async (req: Request, res: Response) => {
     //Check if username and password are set
     let { username, password } = req.body;
@@ -32,7 +34,7 @@ class AuthController {
       process.env.JWT_SECRET
     );
 
-    res.cookie('access_token', token, { httpOnly: true, secure: true, maxAge: 900000 });
+    res.cookie(AuthController.TOKEN_COOKIE_NAME, token, { httpOnly: true, secure: true, maxAge: 900000 });
 
     //Send the jwt in the response
     res.send({
@@ -86,6 +88,11 @@ class AuthController {
     }
 
     res.status(204).send();
+  };
+
+  static logout = (req: Request, res: Response) => {
+    res.clearCookie(AuthController.TOKEN_COOKIE_NAME);
+    res.status(200).send();
   };
 }
 

@@ -9,6 +9,8 @@ router.post('/signup', UserController.newUser);
 
 router.post('/login', AuthController.login);
 
+router.get('/logout', AuthController.logout);
+
 router.post('/change-password', [checkJwt], AuthController.changePassword);
 
 export default router;
