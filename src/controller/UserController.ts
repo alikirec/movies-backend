@@ -96,7 +96,9 @@ class UserController{
             );
 
             res.cookie(AuthController.TOKEN_COOKIE_NAME, token, { httpOnly: true, secure: true, maxAge: 900000 });
-            res.status(201).send(pick(['id', 'username', 'watchList'], newUser));
+            res.status(201).send({
+                user: pick(['id', 'username', 'watchList'], newUser)
+            });
         } catch (e) {
             console.log(e);
             res.status(500).send('server error');
