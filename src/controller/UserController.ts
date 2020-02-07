@@ -2,8 +2,10 @@ import { validate } from 'class-validator';
 import { Request, Response } from 'express';
 import { pick } from 'ramda';
 import { getRepository } from 'typeorm';
+import * as JWT from 'jsonwebtoken';
 
 import { User } from '../entity/User';
+import AuthController from './AuthController';
 
 class UserController{
     static getMe = async (req: Request, res: Response) => {
@@ -87,7 +89,14 @@ class UserController{
         }
 
         try {
-            await userRepository.save(user);
+            const newUser = await userRepository.save(user);
+            const token = JWT.sign(
+              { userId: newUser.id, username },
+              process.env.JWT_SECRET
+            );
+
+            res.cookie(AuthController.TOKEN_COOKIE_NAME, token, { httpOnly: true, secure: true, maxAge: 900000 });
+            res.status(201).send(pick(['id', 'username', 'watchList'], newUser));
         } catch (e) {
             console.log(e);
             res.status(500).send('server error');
