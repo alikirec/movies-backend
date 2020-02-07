@@ -11,9 +11,8 @@ const router = Router();
 const signupRequestBody = Joi.object().keys({
   username: Joi.string().min(4).required(),
   password: Joi.string().min(6).required(),
-  passwordAgain: Joi.string().required().valid(Joi.ref('password'))
+  confirmPassword: Joi.string().required().valid(Joi.ref('password'))
 });
-
 
 router.post('/signup', [validator(signupRequestBody)], UserController.newUser);
 
