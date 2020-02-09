@@ -15,7 +15,9 @@ const moviesPostBody = Joi.object().keys({
   })).required()
 });
 
-const moviesDeleteBody = Joi.array().items(Joi.number());
+const moviesDeleteBody = Joi.object().keys({
+  movies: Joi.array().items(Joi.number()).required()
+});
 
 // Get one user
 router.get(
