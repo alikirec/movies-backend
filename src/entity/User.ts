@@ -7,6 +7,12 @@ import {
 import { Length, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 
+export interface WatchListItem {
+  id: number;
+  title: string;
+  posterPath: string;
+}
+
 @Entity()
 @Unique(['username'])
 export class User {
@@ -24,7 +30,7 @@ export class User {
 
   @Column()
   @IsNotEmpty()
-  watchList: number[];
+  watchList: WatchListItem[];
 
   hashPassword() {
     this.password = bcrypt.hashSync(this.password, 8);

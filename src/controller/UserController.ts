@@ -1,10 +1,10 @@
 import { validate } from 'class-validator';
 import { Request, Response } from 'express';
-import { pick } from 'ramda';
+import { pick, reject, prop } from 'ramda';
 import { getRepository } from 'typeorm';
 import * as JWT from 'jsonwebtoken';
 
-import { User } from '../entity/User';
+import { User, WatchListItem } from '../entity/User';
 import AuthController from './AuthController';
 
 class UserController{
@@ -26,15 +26,18 @@ class UserController{
         //Get the ID from the url
         const id = res.locals.jwtPayload.userId;
 
-        const movies = req.body.movies as number[];
+        const movies = req.body.movies as WatchListItem[];
 
         //Get the user from database
         const userRepository = getRepository(User);
         try {
             const user = await userRepository.findOneOrFail(id);
-            const set = new Set(user.watchList);
-            movies.forEach((movie) => { set.add(movie) });
-            user.watchList = Array.from(set);
+            const currentMovieIds = new Set(user.watchList.map(prop('id')));
+            movies.forEach((movie) => {
+                if (!currentMovieIds.has(movie.id)) {
+                    user.watchList.push(movie);
+                }
+            });
             await userRepository.save(user);
             res.status(200).send({ watchList: user.watchList });
         } catch (error) {
@@ -46,16 +49,15 @@ class UserController{
         //Get the ID from the url
         const id = res.locals.jwtPayload.userId;
 
-        const movies = req.body.movies as number[];
+        const movies = req.body.movies as WatchListItem[];
 
         //Get the user from database
         const userRepository = getRepository(User);
         try {
+            const movieIdsToDelete = new Set(movies.map(prop('id')));
             const user = await userRepository.findOneOrFail(id);
-            const set = new Set(user.watchList);
-            movies.forEach((movie) => { set.delete(movie) });
-            user.watchList = Array.from(set);
-            const a = await userRepository.save(user);
+            user.watchList = reject((item) => movieIdsToDelete.has(item.id), user.watchList);
+            await userRepository.save(user);
             res.status(200).send({ watchList: user.watchList });
         } catch (error) {
             res.status(500).send("Couldn't delete movies");
@@ -95,7 +97,7 @@ class UserController{
               process.env.JWT_SECRET
             );
 
-            res.cookie(AuthController.TOKEN_COOKIE_NAME, token, { httpOnly: true, secure: true, maxAge: 900000 });
+            res.cookie(AuthController.TOKEN_COOKIE_NAME, token, { httpOnly: true, secure: true, maxAge: 9000000 });
             res.status(201).send({
                 user: pick(['id', 'username', 'watchList'], newUser)
             });

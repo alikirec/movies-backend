@@ -8,7 +8,11 @@ import validator from '../middlewares/validator';
 const router = Router();
 
 const moviesRequestBody = Joi.object().keys({
-  movies: Joi.array().items(Joi.number()).required()
+  movies: Joi.array().items(Joi.object().keys({
+    id: Joi.number().required(),
+    posterPath: Joi.string().required(),
+    title: Joi.string().required()
+  })).required()
 });
 
 // Get one user
