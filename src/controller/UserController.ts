@@ -49,12 +49,12 @@ class UserController{
         //Get the ID from the url
         const id = res.locals.jwtPayload.userId;
 
-        const movies = req.body.movies as WatchListItem[];
+        const movieIds = req.body.movies as number[];
 
         //Get the user from database
         const userRepository = getRepository(User);
         try {
-            const movieIdsToDelete = new Set(movies.map(prop('id')));
+            const movieIdsToDelete = new Set(movieIds);
             const user = await userRepository.findOneOrFail(id);
             user.watchList = reject((item) => movieIdsToDelete.has(item.id), user.watchList);
             await userRepository.save(user);
